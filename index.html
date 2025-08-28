@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App de Tareas con Recordatorios</title>
+  <style>
+    /* === Estilos base === */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      width: 90%;
+      max-width: 450px;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.8rem;
+    }
+
+    .task-input {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .task-input input, .task-input button {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .task-input button {
+      background: #4facfe;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    .task-input button:hover {
+      background: #00c6ff;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      background: #f8f9fa;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    li.reminder {
+      border-left: 5px solid #4facfe;
+    }
+
+    .task-text {
+      flex: 1;
+      min-width: 200px;
+      font-size: 14px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .buttons button {
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+
+    .edit {
+      background: #ffb347;
+      color: white;
+    }
+
+    .delete {
+      background: #ff6b6b;
+      color: white;
+    }
+
+    .notify {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      50% { background: #ffe082; }
+    }
+
+    /* === Responsivo para pantallas pequeñas === */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .container {
+        padding: 15px;
+        border-radius: 15px;
+      }
+
+      .task-input input, .task-input button {
+        font-size: 13px;
+        padding: 10px;
+      }
+
+      .task-text {
+        font-size: 13px;
+      }
+
+      .buttons button {
+        font-size: 11px;
+        padding: 5px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mis Tareas</h1>
+    <div class="task-input">
+      <input type="text" id="taskText" placeholder="Escribe tu tarea...">
+      <input type="datetime-local" id="taskTime">
+      <button onclick="addTask()">Añadir Tarea</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    let tasks = [];
+
+    function addTask() {
+      const text = document.getElementById("taskText").value;
+      const time = document.getElementById("taskTime").value;
+
+      if (text === "" || time === "") {
+        alert("Por favor llena todos los campos");
+        return;
+      }
+
+      const task = {
+        id: Date.now(),
+        text,
+        time,
+        notified: false
+      };
+
+      tasks.push(task);
+      renderTasks();
+      document.getElementById("taskText").value = "";
+      document.getElementById("taskTime").value = "";
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.className = "reminder";
+        
+        const span = document.createElement("span");
+        span.className = "task-text";
+        span.textContent = `${task.text} (⏰ ${new Date(task.time).toLocaleString()})`;
+
+        const btns = document.createElement("div");
+        btns.className = "buttons";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "edit";
+        editBtn.textContent = "Editar";
+        editBtn.onclick = () => editTask(task.id);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete";
+        deleteBtn.textContent = "Eliminar";
+        deleteBtn.onclick = () => deleteTask(task.id);
+
+        btns.appendChild(editBtn);
+        btns.appendChild(deleteBtn);
+
+        li.appendChild(span);
+        li.appendChild(btns);
+        list.appendChild(li);
+      });
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(task => task.id !== id);
+      renderTasks();
+    }
+
+    function editTask(id) {
+      const task = tasks.find(t => t.id === id);
+      const newText = prompt("Editar tarea:", task.text);
+      const newTime = prompt("Editar fecha/hora (YYYY-MM-DD HH:MM):", task.time.replace("T", " ").slice(0,16));
+
+      if (newText && newTime) {
+        task.text = newText;
+        task.time = newTime.replace(" ", "T");
+        renderTasks();
+      }
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      tasks.forEach(task => {
+        const taskTime = new Date(task.time);
+        if (!task.notified && taskTime <= now) {
+          alert("⏰ Recordatorio: " + task.text);
+          task.notified = true;
+          renderTasks();
+        }
+      });
+    }, 1000);
+  </script>
+</body>
+</html>
