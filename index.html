@@ -179,14 +179,7 @@
   </div>
 
   <script>
-    if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("service-worker.js")
-        .then((reg) => console.log("✅ Service Worker registrado:", reg))
-        .catch((err) => console.error("❌ Error al registrar SW:", err));
-    });
-  }
+  
 
     let tasks = [];
 
@@ -275,8 +268,19 @@
       });
     }, 1000);
   </script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .then((reg) => console.log("✅ Service Worker registrado:", reg))
+        .catch((err) => console.error("❌ Error al registrar SW:", err));
+    });
+  }
+</script>
 </body>
 </html>
+
 
 
 
