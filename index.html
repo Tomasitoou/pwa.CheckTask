@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>App de Tareas con Recordatorios</title>
+  <!-- Manifest de la PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4facfe">
+
   <!-- Favicon desde Flaticon -->
 <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/164/164384.png">
 
@@ -175,6 +179,15 @@
   </div>
 
   <script>
+    if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .then((reg) => console.log("✅ Service Worker registrado:", reg))
+        .catch((err) => console.error("❌ Error al registrar SW:", err));
+    });
+  }
+
     let tasks = [];
 
     function addTask() {
@@ -264,6 +277,7 @@
   </script>
 </body>
 </html>
+
 
 
 
